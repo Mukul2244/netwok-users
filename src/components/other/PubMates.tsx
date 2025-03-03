@@ -7,7 +7,7 @@ import { Search, MessageSquare } from 'lucide-react'
 import { UserInterface } from '@/interfaces/User'
 // import { useAuth } from '@/context/AuthContext'
 import { useChat } from '@/context/ChatContext'
-import { axiosInstance } from '@/lib/axios'
+import axiosInstance from '@/lib/axios'
 
 export default function PubMates() {
   // const { username } = useAuth()

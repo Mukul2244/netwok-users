@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import{ axiosInstance } from "@/lib/axios";
+import axiosInstance from "@/lib/axios";
 
 export async function GET(req: NextRequest) {
   const { refresh } = await req.json();

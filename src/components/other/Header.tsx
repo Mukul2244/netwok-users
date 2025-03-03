@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button"
 import { Beer, Users } from 'lucide-react'
 import PubMates from './PubMates'
 import { useAuth } from "@/context/AuthContext"
-import Timer from "@/components/Timer"
-import { axiosInstance } from "@/lib/axios"
+import Timer from "./Timer"
+import axiosInstance from "@/lib/axios"
 import {useEffect, useState } from "react"
 
 export default function Header() {

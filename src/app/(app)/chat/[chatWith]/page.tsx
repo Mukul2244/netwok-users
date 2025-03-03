@@ -8,7 +8,7 @@ import { useAuth } from '@/context/AuthContext'
 import { MessageInterface } from '@/interfaces/Messsage'
 import { useSocket } from '@/context/SocketContext'
 import { useChat } from '@/context/ChatContext'
-import { axiosInstance } from '@/lib/axios'
+import axiosInstance from '@/lib/axios'
 import getCookie from '@/lib/getCookie'
 
 export default function ChatLayout() {

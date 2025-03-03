@@ -1,5 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState
+  // , useEffect 
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,7 +15,9 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter
+  // , useSearchParams
+ } from "next/navigation";
 import axios from "axios";
 import { toast } from "sonner";
 import { RegisterSchema } from "@/schema/RegisterSchema";
@@ -22,7 +26,7 @@ import api from "@/lib/axios";
 
 export default function Register() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
   const { setUsername } = useAuth();
   const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof RegisterSchema>>({
@@ -33,29 +37,29 @@ export default function Register() {
     },
   });
 
-  useEffect(() => {
-    const restaurantId = searchParams.get("restaurantId");
-    const qrCodeNumber = searchParams.get("qrCodeNumber");
-    if (restaurantId && qrCodeNumber) {
-      localStorage.setItem("restaurantId", restaurantId);
-      localStorage.setItem("qrCodeNumber", qrCodeNumber);
-    }
+  // useEffect(() => {
+  //   const restaurantId = searchParams.get("restaurantId");
+  //   const qrCodeNumber = searchParams.get("qrCodeNumber");
+  //   if (restaurantId && qrCodeNumber) {
+  //     localStorage.setItem("restaurantId", restaurantId);
+  //     localStorage.setItem("qrCodeNumber", qrCodeNumber);
+  //   }
 
-  }, [searchParams]);
+  // }, [searchParams]);
 
   const handleRegister = async (
     data: z.infer<typeof RegisterSchema>
   ) => {
     setLoading(true);
     try {
-      const restaurantId = localStorage.getItem("restaurantId");
-      const qrCodeNumber = localStorage.getItem("qrCodeNumber");
-      if (!restaurantId || !qrCodeNumber) {
-        toast("Invalid QR code");
-        return;
-      }
-      data.restaurantId = Number(restaurantId);
-      data.qrCodeNumber = Number(qrCodeNumber);
+      // const restaurantId = localStorage.getItem("restaurantId");
+      // const qrCodeNumber = localStorage.getItem("qrCodeNumber");
+      // if (!restaurantId || !qrCodeNumber) {
+      //   toast("Invalid QR code");
+      //   return;
+      // }
+      // data.restaurantId = Number(restaurantId);
+      // data.qrCodeNumber = Number(qrCodeNumber);
       const response = await api.post("/customers/", data);
       localStorage.setItem('username', response.data.username);
       await axios.post('/api/setCookie', {
