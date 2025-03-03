@@ -1,5 +1,5 @@
 "use client";
-import { useState , useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,14 +13,14 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useRouter , useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { toast } from "sonner";
 import { RegisterSchema } from "@/schema/RegisterSchema";
 import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/lib/axios";
 
-export default function Register() {
+function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setUsername } = useAuth();
@@ -40,17 +40,14 @@ export default function Register() {
       localStorage.setItem("restaurantId", restaurantId);
       localStorage.setItem("qrCodeNumber", qrCodeNumber);
     }
-
   }, [searchParams]);
 
-  const handleRegister = async (
-    data: z.infer<typeof RegisterSchema>
-  ) => {
+  const handleRegister = async (data: z.infer<typeof RegisterSchema>) => {
     setLoading(true);
     try {
       const restaurantId = localStorage.getItem("restaurantId");
       const qrCodeNumber = localStorage.getItem("qrCodeNumber");
-      if (!restaurantId && !qrCodeNumber) {
+      if (!restaurantId || !qrCodeNumber) {
         toast("Invalid QR code");
         return;
       }
@@ -60,10 +57,10 @@ export default function Register() {
       localStorage.setItem('username', response.data.username);
       await axios.post('/api/setCookie', {
         accessToken: response.data.token,
-      })
+      });
       setUsername(response.data.username);
       toast("You have successfully registered");
-      router.push('/')
+      router.push('/');
     } catch (error) {
       console.log(error);
       toast("Registration failed due to some error");
@@ -122,5 +119,13 @@ export default function Register() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Register() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RegisterForm />
+    </Suspense>
   );
 }
