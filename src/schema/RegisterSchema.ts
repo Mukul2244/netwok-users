@@ -14,5 +14,6 @@ export const RegisterSchema = z.object({
     restaurantId: z
     .number(),
     qrCodeNumber: z
-    .number() 
+    .string()
+     
   })
