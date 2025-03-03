@@ -11,9 +11,6 @@ export const RegisterSchema = z.object({
       .min(3, { message: "Email must be at least 3 characters" })
       .max(32, { message: "Email is too long" })
     , 
-    restaurantId: z
-    .number(),
-    qrCodeNumber: z
-    .string()
+
      
   })

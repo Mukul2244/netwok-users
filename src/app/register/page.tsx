@@ -49,11 +49,14 @@ function RegisterForm() {
       const qrCodeNumber = localStorage.getItem("qrCodeNumber");
       if (!restaurantId || !qrCodeNumber) {
         toast("Invalid QR code");
+        setLoading(false);
         return;
       }
-      data.restaurantId = Number(restaurantId);
-      data.qrCodeNumber = qrCodeNumber || '';
-      const response = await axiosInstance.post("/customers/", data);
+      const response = await axiosInstance.post("/customers/", {
+        ...data,
+        restaurantId,
+        qrCodeNumber,
+      });
       localStorage.setItem('username', response.data.username);
       await axios.post('/api/setCookie', {
         accessToken: response.data.token,
