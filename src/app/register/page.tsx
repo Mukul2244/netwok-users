@@ -54,8 +54,8 @@ function RegisterForm() {
       }
       const response = await axiosInstance.post("/customers/", {
         ...data,
-        restaurantId,
-        qrCodeNumber,
+       restraunt_id: restaurantId,
+       var_id: qrCodeNumber,
       });
       localStorage.setItem('username', response.data.username);
       await axios.post('/api/setCookie', {
