@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, MessageSquare } from 'lucide-react';
+import {  MessageSquare } from 'lucide-react';
 import { UserInterface } from '@/interfaces/User';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';

@@ -1,7 +1,9 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { FlameIcon, MessageCircle, Smile, Laugh, Heart, UserIcon as Male, UserIcon as Female } from "lucide-react";
+import { FlameIcon, MessageCircle, Smile, Laugh, Heart,
+  //  UserIcon as Male, UserIcon as Female 
+  } from "lucide-react";
 import axiosInstance from "@/lib/axios";
 
 const HotnessLevel = ({ hotness, setHotness }: { hotness: number; setHotness: (level: number) => void }) => (
@@ -40,27 +42,32 @@ const TypeSelection = ({ handleTypeSelection }: { handleTypeSelection: (type: "q
   </div>
 );
 
-const GenderSelection = ({ handleGenderSelection }: { handleGenderSelection: (gender: "male" | "female") => void }) => (
-  <div className="mt-4">
-    <h3 className="text-lg font-semibold mb-2 text-center">Choose Target Gender</h3>
-    <div className="flex justify-center gap-4">
-      <Button onClick={() => handleGenderSelection("male")} className="flex-1 h-12" variant="outline">
-        <Male className="mr-2 h-5 w-5" />
-        For Him
-      </Button>
-      <Button onClick={() => handleGenderSelection("female")} className="flex-1 h-12" variant="outline">
-        <Female className="mr-2 h-5 w-5" />
-        For Her
-      </Button>
-    </div>
-  </div>
-);
+// const GenderSelection = ({ handleGenderSelection }: { handleGenderSelection: (gender: "male" | "female") => void }) => (
+//   <div className="mt-4">
+//     <h3 className="text-lg font-semibold mb-2 text-center">Choose Target Gender</h3>
+//     <div className="flex justify-center gap-4">
+//       <Button onClick={() => handleGenderSelection("male")} className="flex-1 h-12" variant="outline">
+//         <Male className="mr-2 h-5 w-5" />
+//         For Him
+//       </Button>
+//       <Button onClick={() => handleGenderSelection("female")} className="flex-1 h-12" variant="outline">
+//         <Female className="mr-2 h-5 w-5" />
+//         For Her
+//       </Button>
+//     </div>
+//   </div>
+// );
 
 export default function Home() {
   const [hotness, setHotness] = useState<number>(1);
   const [showMixedBagOptions, setShowMixedBagOptions] = useState(true);
-  const [showGenderOptions, setShowGenderOptions] = useState<"compliment" | "pickup_line" | null>(null);
-  const [questions, setQuestions] = useState<any[]>([]);
+  // const [showGenderOptions, setShowGenderOptions] = useState<"compliment" | "pickup_line" | null>(null);
+  const [questions, setQuestions] = useState<{
+    id: number,
+    type: "question" | "compliment" | "joke" | "pickup_line",
+    content: string,
+    level: number,
+  }[]>([]);
   const [selectedType, setSelectedType] = useState<"question" | "compliment" | "joke" | "pickup_line" | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [mixedBag, setMixedBag] = useState<boolean>(false);
@@ -90,7 +97,7 @@ export default function Home() {
       setSelectedType(type);
       setMixedBag(false);
       if (type === "compliment" || type === "pickup_line") {
-        setShowGenderOptions(type);
+        // setShowGenderOptions(type);
       }
     }
   };
@@ -98,13 +105,13 @@ export default function Home() {
   const handleMixedBagSelection = (type: "question" | "compliment" | "joke" | "pickup_line") => {
     setSelectedType(type);
     if (type === "compliment" || type === "pickup_line") {
-      setShowGenderOptions(type);
+      // setShowGenderOptions(type);
     }
   };
 
-  const handleGenderSelection = (gender: "male" | "female") => {
-    setShowGenderOptions(null);
-  };
+  // const handleGenderSelection = (gender: "male" | "female") => {
+  //   setShowGenderOptions(null);
+  // };
 
   const handleNextQuestion = () => {
     setCurrentQuestionIndex((prevIndex) => (prevIndex + 1) % questions.length);
@@ -137,7 +144,7 @@ export default function Home() {
             </Button>
           </>
         )}
-        {showGenderOptions && <GenderSelection handleGenderSelection={handleGenderSelection} />}
+        {/* {showGenderOptions && <GenderSelection handleGenderSelection={handleGenderSelection} />} */}
         {questions.length > 0 && (
           <div className="mt-4">
             <h3 className="text-lg font-semibold mb-2 text-center">Question</h3>
