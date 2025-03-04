@@ -3,6 +3,4 @@ export interface UserInterface{
     username: string
     avatar?: string
     email?: string
-    is_superuser?: boolean
-
 }

@@ -20,7 +20,7 @@ const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
     const onStartChat = (userId: string) => {
         setActiveChat(userId);
-        router.push(`/user/chat/${userId}`);
+        router.push(`/chat/${userId}`);
 
     };
 
