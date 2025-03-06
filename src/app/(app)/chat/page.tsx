@@ -29,10 +29,12 @@ export default function ChatSection() {
 
   const handleConnection = useCallback(async () => {
     try {
-      const response = await axiosInstance.get('/group-chat/')
+      const restaurantId= localStorage.getItem('restaurantId')
+      const qrCodeNumber= localStorage.getItem('qrCodeNumber')
+      const response = await axiosInstance.get(`/group-chat/?restaurant=${restaurantId}`)
       setMessages(response.data)
       const token = await getCookie('accessToken')
-      const ws = new WebSocket(`ws://13.60.42.120/ws/group/33/951656/${token}/`);
+      const ws = new WebSocket(`ws://13.60.42.120/ws/group/${restaurantId}/${qrCodeNumber}/${token}/`);
       socketRef.current = ws
       setSocket(ws)
       ws.onopen = () => {

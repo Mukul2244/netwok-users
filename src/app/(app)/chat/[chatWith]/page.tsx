@@ -1,36 +1,36 @@
-"use client"
-import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Send } from 'lucide-react'
-import { useAuth } from '@/context/AuthContext'
-import { MessageInterface } from '@/interfaces/Messsage'
-import { useSocket } from '@/context/SocketContext'
-import { useChat } from '@/context/ChatContext'
-import axiosInstance from '@/lib/axios'
-import getCookie from '@/lib/getCookie'
+"use client";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Send } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { MessageInterface } from '@/interfaces/Messsage';
+import { useSocket } from '@/context/SocketContext';
+import { useChat } from '@/context/ChatContext';
+import axiosInstance from '@/lib/axios';
+import getCookie from '@/lib/getCookie';
+import { toast } from 'sonner';
 
 export default function ChatLayout() {
-  const [messages, setMessages] = useState<MessageInterface[]>([])
-  const [inputText, setInputText] = useState('')
-  const { username } = useAuth()
+  const [messages, setMessages] = useState<MessageInterface[]>([]);
+  const [inputText, setInputText] = useState('');
+  const { username } = useAuth();
   const { activeChat } = useChat();
   const { socket, setSocket } = useSocket();
   const socketRef = useRef<WebSocket | null>(null); // Store WebSocket instance
 
   const chatId = useCallback(async () => {
     try {
-      const response = await axiosInstance.get('/private-chatdb/', {
-        params: {
-          username,
-          activeChat
-        }
-      })
-      return response.data.chat_id
+      const restaurantId = localStorage.getItem('restaurantId');
+      const response = await axiosInstance.post('/private-chatdb/', {
+        user1: username,
+        user2: activeChat,
+        restaurant_id: restaurantId
+      });
+      return response.data.chat_id;
     } catch (error) {
-      console.error("Error fetching chat ID:", error);
-      return null;
+      console.error("Error fetching chat id:", error);
     }
   }, [username, activeChat]);
 
@@ -38,17 +38,23 @@ export default function ChatLayout() {
     try {
       const chatIdValue = await chatId();
       if (chatIdValue) {
-        const response = await axiosInstance.get(`/private-chat/?chat_id=${chatIdValue}`)
-        setMessages(response.data)
+        const response = await axiosInstance.get(`/private-chat/?chat_id=${chatIdValue}`);
+        setMessages(response.data);
       }
-    } catch (error) {
-      console.error("Error fetching chat history:", error);
+    } catch (error: any) {
+      if (error.response.status === 404) {
+        console.log("No chat history found");
+      }
+      else {
+        console.error("Error fetching chat id:", error);
+      }
+
     }
   }, [chatId]);
 
   const handleSocketConnection = useCallback(async () => {
     try {
-      const token = await getCookie('accessToken')
+      const token = await getCookie('accessToken');
       const chatIdValue = await chatId();
       if (chatIdValue && token) {
         const ws = new WebSocket(`ws://13.60.42.120/ws/private/${chatIdValue}/${token}/`);
@@ -72,8 +78,8 @@ export default function ChatLayout() {
 
   useEffect(() => {
     if (activeChat) {
-      handleChatHistory()
-      handleSocketConnection()
+      handleChatHistory();
+      handleSocketConnection();
     }
 
     return () => {
@@ -102,22 +108,26 @@ export default function ChatLayout() {
       {/* Message Display Section */}
       <div className="flex-1 min-h-[300px] max-h-[400px] overflow-y-auto">
         <ScrollArea className="space-y-4">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`mb-4 flex ${msg.sender_username === username ? 'justify-end' : 'justify-start'} animate-fade-in-up`}
-            >
+          {messages.length === 0 ? (
+            <div className="text-center text-fuchsia-500">No messages yet</div>
+          ) : (
+            messages.map((msg, index) => (
               <div
-                className={`max-w-[80%] p-4 rounded-2xl shadow-lg transition-all duration-300 ${msg.sender_username === username
-                  ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white'
-                  : 'bg-white text-fuchsia-800'
-                  } hover:shadow-xl`}
+                key={index}
+                className={`mb-4 flex ${msg.sender_username === username ? 'justify-end' : 'justify-start'} animate-fade-in-up`}
               >
-                <p className="font-semibold">{msg.sender_username === username ? 'You' : msg.sender_username}</p>
-                <p className="text-sm">{msg.text}</p>
+                <div
+                  className={`max-w-[80%] p-4 rounded-2xl shadow-lg transition-all duration-300 ${msg.sender_username === username
+                    ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white'
+                    : 'bg-white text-fuchsia-800'
+                    } hover:shadow-xl`}
+                >
+                  <p className="font-semibold">{msg.sender_username === username ? 'You' : msg.sender_username}</p>
+                  <p className="text-sm">{msg.text}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </ScrollArea>
       </div>
 
