@@ -10,7 +10,7 @@ import { useSocket } from '@/context/SocketContext';
 import { useChat } from '@/context/ChatContext';
 import axiosInstance from '@/lib/axios';
 import getCookie from '@/lib/getCookie';
-import { toast } from 'sonner';
+import axios from 'axios';
 
 export default function ChatLayout() {
   const [messages, setMessages] = useState<MessageInterface[]>([]);
@@ -41,8 +41,8 @@ export default function ChatLayout() {
         const response = await axiosInstance.get(`/private-chat/?chat_id=${chatIdValue}`);
         setMessages(response.data);
       }
-    } catch (error: any) {
-      if (error.response.status === 404) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
         console.log("No chat history found");
       }
       else {
