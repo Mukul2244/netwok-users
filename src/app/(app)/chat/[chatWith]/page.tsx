@@ -57,7 +57,7 @@ export default function ChatLayout() {
       const token = await getCookie('accessToken');
       const chatIdValue = await chatId();
       if (chatIdValue && token) {
-        const ws = new WebSocket(`ws://netwok.app/ws/private/${chatIdValue}/${token}/`);
+        const ws = new WebSocket(`wss://netwok.app/ws/private/${chatIdValue}/${token}/`);
         socketRef.current = ws;
         setSocket(ws);
         ws.onopen = () => {
