@@ -2,8 +2,7 @@ import axios from "axios";
 import getCookie from "@/lib/getCookie";
 
 const axiosInstance = axios.create({
-  // baseURL: "https://rk4huq4sfe.execute-api.eu-north-1.amazonaws.com",
-  baseURL: "https://netwok.app",
+  baseURL: "https://api.netwok.app",
   headers: {
     "Content-Type": "application/json",
   },
