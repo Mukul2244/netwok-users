@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { FlameIcon, MessageCircle, Smile, Laugh, Heart, UserIcon as Male, UserIcon as Female } from "lucide-react";
 import axiosInstance from "@/lib/axios";
 
-const HotnessLevel = ({ hotness, setHotness }: { hotness: string; setHotness: (level:string) => void }) => (
+const HotnessLevel = ({ hotness, setHotness }: { hotness: string; setHotness: (level: string) => void }) => (
   <div className="grid grid-cols-5 gap-2 mb-4 sm:mb-6">
-    {['1','2','3','4','5'].map((level) => (
+    {['1', '2', '3', '4', '5'].map((level) => (
       <Button
         key={level}
         onClick={() => setHotness(level)}
@@ -108,57 +108,63 @@ export default function Home() {
   }
 
 
-const handleGenderSelection = (selectedGender: "male" | "female") => {
-  setGender(selectedGender);
-  setShowGenderOptions(false); // Hide gender options after selection
-};
+  const handleGenderSelection = (selectedGender: "male" | "female") => {
+    setGender(selectedGender);
+    setShowGenderOptions(false); // Hide gender options after selection
+  };
 
-const handleNextQuestion = () => {
-  setCurrentQuestionIndex((prevIndex) => (prevIndex + 1) % questions.length);
-};
-const handleMixedBagSelection = () => {
-  setShowMixedBagOptions(false);
-  setHotness(''); // Remove the level for Mixed Bag
-}
+  const handleNextQuestion = () => {
+    setCurrentQuestionIndex((prevIndex) => (prevIndex + 1) % questions.length);
+  };
+  const handleMixedBagSelection = () => {
+    setShowMixedBagOptions(false);
+    setHotness(''); // Remove the level for Mixed Bag
+  }
 
-return (
-  <div className="flex flex-col items-center justify-center">
-    <div className="w-full max-w-md bg-white rounded-3xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-      {showMixedBagOptions ? (
-        <>
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 text-gray-800 text-center">Spicy Level</h2>
-          <HotnessLevel hotness={hotness} setHotness={setHotness} />
-          <div className="grid grid-cols-1 gap-4 mb-4 sm:mb-6">
-            <Button
-              onClick={() => handleMixedBagSelection()}
-              className="h-20 sm:h-24 text-lg sm:text-xl font-bold bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white"
-            >
-              <FlameIcon className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
-              Mixed Bag (All Levels)
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+        {showMixedBagOptions ? (
+          <>
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-gray-800 text-center">Spicy Level</h2>
+            <HotnessLevel hotness={hotness} setHotness={setHotness} />
+            <div className="grid grid-cols-1 gap-4 mb-4 sm:mb-6">
+              <Button
+                onClick={() => handleMixedBagSelection()}
+                className="h-20 sm:h-24 text-lg sm:text-xl font-bold bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white"
+              >
+                <FlameIcon className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
+                Mixed Bag (All Levels)
+              </Button>
+            </div>
+            <TypeSelection handleTypeSelection={handleTypeSelection} />
+            {showGenderOptions && <GenderSelection handleGenderSelection={handleGenderSelection} />}
+          </>
+        ) : (
+          <>
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-gray-800 text-center">Choose a Category</h2>
+            <TypeSelection handleTypeSelection={handleTypeSelection} />
+            {showGenderOptions && <GenderSelection handleGenderSelection={handleGenderSelection} />}
+            <Button onClick={() => {
+              setShowMixedBagOptions(true)
+              setHotness('1')
+            }}
+              className="w-full mt-2 h-12 text-base sm:text-lg" variant="outline">
+              Back
+            </Button>
+          </>
+        )}
+
+        {questions.length > 0 && (
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold mb-2 text-center">Question</h3>
+            <div className="text-gray-700 text-center mb-4">{questions[currentQuestionIndex].content}</div>
+            <Button onClick={handleNextQuestion} className="bg-gradient-to-br from-violet-500 to-fuchsia-500 float-end w-20 h-12 text-base sm:text-lg">
+              Next
             </Button>
           </div>
-          <TypeSelection handleTypeSelection={handleTypeSelection} />
-        </>
-      ) : (
-        <>
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 text-gray-800 text-center">Choose a Category</h2>
-          <TypeSelection handleTypeSelection={handleTypeSelection} />
-          <Button onClick={() => setShowMixedBagOptions(true)} className="w-full h-12 text-base sm:text-lg" variant="outline">
-            Back
-          </Button>
-        </>
-      )}
-      {showGenderOptions && <GenderSelection handleGenderSelection={handleGenderSelection} />}
-      {questions.length > 0 && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold mb-2 text-center">Question</h3>
-          <div className="text-gray-700 text-center mb-4">{questions[currentQuestionIndex].content}</div>
-          <Button onClick={handleNextQuestion} className="bg-gradient-to-br from-violet-500 to-fuchsia-500 float-end w-20 h-12 text-base sm:text-lg">
-            Next
-          </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 }
