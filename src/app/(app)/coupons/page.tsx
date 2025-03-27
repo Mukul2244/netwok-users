@@ -1,64 +1,125 @@
-import React from 'react'
+"use client";
+import React, { useEffect, useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import axiosInstance from "@/lib/axios";
+import { toast } from "sonner";
+import {  isAxiosError } from "axios";
 
-function page() {
-  return (
-    <div>page</div>
-  )
+interface Offer {
+  id: string;
+  description: string;
+  time_based: boolean;
+  time_duration_hours: number;
+  token: string;
 }
 
-export default page
+export default function CouponsSection() {
+  const [totalTime, setTotalTime] = useState(0);
+  const [restaurantName, setRestaurantName] = useState("");
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [stayTime, setStayTime] = useState("00h:00m:00s");
+  const [customerCreatedAt, setUserCreatedAt] = useState<string | null>(null);
 
-// "use client"
-// import React from 'react'
-// import { Progress } from "@/components/ui/progress"
-// import { Button } from "@/components/ui/button"
+  const calculateTime = useCallback(() => {
+    if (!customerCreatedAt) return;
 
-// export default function CouponsSection() {
-//   const [totalTime, setTotalTime] = React.useState(0)
+    const currentTime = new Date().getTime();
+    const createdTime = new Date(customerCreatedAt).getTime();
+    const timeDifference = currentTime - createdTime;
 
-//   const formatTime = (time: number) => {
-//     const hours = Math.floor(time / 3600)
-//     const minutes = Math.floor((time % 3600) / 60)
-//     const seconds = time % 60
-//     return `${hours}h ${minutes}m ${seconds}s`
-//   }
+    // Update stay time
+    const hours = Math.floor(timeDifference / (1000 * 60 * 60));
+    const minutes = Math.floor(
+      (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+    );
+    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+    setStayTime(`${hours}h:${minutes}m:${seconds}s`);
 
-//   const coupons = [
-//     { title: "1 Hour Special", discount: "Free snack", timeRequired: 3600 },
-//     { title: "2 Hour Reward", discount: "10% off your bill", timeRequired: 7200 },
-//     { title: "3 Hour Warrior", discount: "Free pint", timeRequired: 10800 },
-//     { title: "4 Hour Legend", discount: "25% off your total bill", timeRequired: 14400 }
-//   ]
+    // Update total time in seconds
+    setTotalTime(timeDifference / 1000);
+  }, [customerCreatedAt]);
 
-//   const addTime = () => {
-//     setTotalTime((prevTime) => prevTime + 3600) // Add 1 hour (3600 seconds)
-//   }
+  const fetchData = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get("/customers/");
+      const customerData = response.data.customer;
+      setUserCreatedAt(customerData.token_created_on);
+      const restaurantData = response.data.visited_restaurants[0];
+      setRestaurantName(restaurantData.name);
+      setOffers(restaurantData.offers);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }, []);
 
-//   return (
-//     <div className="flex-1 p-4 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg shadow-lg overflow-auto">
-//       <div className="mb-4">
-//         <h3 className="text-2xl font-bold mb-2 text-amber-800">Time at The Tipsy Tavern</h3>
-//         <Progress 
-//           value={(totalTime / 14400) * 100} 
-//           className="w-full h-4 bg-amber-200"
-//         />
-//         <p className="text-sm text-amber-700 mt-1">Total time: {formatTime(totalTime)}</p>
-//       </div>
-//       <div className="grid grid-cols-1 gap-4">
-//         {coupons.map((coupon, index) => (
-//           <div key={index} className={`p-4 rounded-lg shadow-md ${totalTime >= coupon.timeRequired ? 'bg-gradient-to-r from-amber-400 to-orange-400' : 'bg-white'}`}>
-//             <h3 className={`text-xl font-bold mb-2 ${totalTime >= coupon.timeRequired ? 'text-white' : 'text-amber-800'}`}>{coupon.title}</h3>
-//             <p className={totalTime >= coupon.timeRequired ? 'text-amber-100' : 'text-amber-700'}>{coupon.discount}</p>
-//             <Button className={`mt-2 w-full ${totalTime >= coupon.timeRequired ? 'bg-white text-orange-500 hover:bg-amber-50' : 'bg-amber-500 text-white hover:bg-amber-600'} transition-all duration-300`} disabled={totalTime < coupon.timeRequired}>
-//               {totalTime >= coupon.timeRequired ? 'Redeem' : `Unlock in ${formatTime(coupon.timeRequired - totalTime)}`}
-//             </Button>
-//           </div>
-//         ))}
-//       </div>
-//       <Button onClick={addTime} className="mt-4 bg-amber-500 text-white hover:bg-amber-600 transition-all duration-300">
-//         Add 1 Hour
-//       </Button>
-//     </div>
-//   )
-// }
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      calculateTime();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [calculateTime]);
+
+  const handleRedeem = async (token: string) => {
+    try {
+      await axiosInstance.post("/offer-redemptions/redeem/", {
+        offer_token: token
+      });
+      toast("Offer redeemed successfully");
+
+    } catch (error: unknown) {
+      if (isAxiosError(error) && error.response?.status === 400) {
+        toast("You have already redeemed this offer");
+      }
+    }
+  }
+  return (
+    <div className="flex-1 p-4 bg-white/80 rounded-lg shadow-lg overflow-auto">
+      <div className="mb-4">
+        <h3 className="text-2xl font-bold mb-2 text-fuchsia-700">{`Total Time at ${restaurantName}: ${stayTime}`}</h3>
+      </div>
+      <div className="grid grid-cols-1 gap-4">
+        {offers.length === 0 ? (
+          <div className="p-4 rounded-lg shadow-md bg-white">
+            <h3 className="text-xl font-bold mb-2 text-fuchsia-800">
+              No Offer Available
+            </h3>
+          </div>
+        ) : (
+          offers.map((offer) => {
+            const isUnlocked = totalTime >= offer.time_duration_hours * 3600;
+            return (
+              <div
+                key={offer.id}
+                className={`p-4 rounded-lg shadow-md transition-all duration-300 bg-white`}
+              >
+                <Button
+                  className={`float-end mt-2 max-w-md transition-all duration-300  `}
+                  disabled={!isUnlocked}
+                  onClick={() => handleRedeem(offer.token)}
+                >
+                  {isUnlocked
+                    ? "Redeem"
+                    : `Unlock in ${offer.time_duration_hours - Math.floor(totalTime / 3600)
+                    }h`}
+                </Button>
+                <h3
+                  className={`text-xl font-bold mb-2  text-fuchsia-800
+                  }`}
+                >
+                  {offer.description}
+                </h3>
+                <p className={`text-sm text-fuchsia-700 }`}>
+                  {offer.description}
+                </p>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  )
+}
