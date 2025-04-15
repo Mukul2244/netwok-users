@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,7 +13,7 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "sonner";
 import { RegisterSchema } from "@/schema/RegisterSchema";
@@ -22,7 +22,6 @@ import axiosInstance from "@/lib/axios";
 
 function RegisterForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { setUsername } = useAuth();
   const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof RegisterSchema>>({
@@ -33,14 +32,7 @@ function RegisterForm() {
     },
   });
 
-  useEffect(() => {
-    const restaurantId = searchParams.get("restaurantId");
-    const qrCodeNumber = searchParams.get("qrCodeNumber");
-    if (restaurantId && qrCodeNumber) {
-      localStorage.setItem("restaurantId", restaurantId);
-      localStorage.setItem("qrCodeNumber", qrCodeNumber);
-    }
-  }, [searchParams]);
+
 
   const handleRegister = async (data: z.infer<typeof RegisterSchema>) => {
     setLoading(true);
@@ -54,16 +46,21 @@ function RegisterForm() {
       }
       const response = await axiosInstance.post("/customers/", {
         ...data,
-       restraunt_id: restaurantId,
-       var_id: qrCodeNumber,
+        restraunt_id: restaurantId,
+        var_id: qrCodeNumber,
       });
       localStorage.setItem('username', response.data.username);
       await axios.post('/api/setCookie', {
         accessToken: response.data.token,
       });
       setUsername(response.data.username);
+      if(response.data.is_verified){
       toast("You have successfully registered");
       router.push('/');
+      }else{
+        toast("You have successfully registered but your account is not verified yet");
+        router.push(`/verify/${response.data.email}`);
+      }
     } catch (error) {
       console.log(error);
       toast("Registration failed due to some error");
@@ -75,9 +72,9 @@ function RegisterForm() {
   return (
     <div className="flex items-center justify-center min-h-screen w-full bg-gradient-to-br from-purple-600 to-indigo-800 p-4">
       <div className="w-full max-w-md max-h-lg bg-white rounded-lg shadow-xl overflow-hidden p-6 ">
-        <div className="space-y-4">
-          <h2 className="text-3xl font-bold text-center text-indigo-800 mb-6">
-            Join The Tipsy Tavern
+        <div className="space-y-4 ">
+          <h2 className="flex justify-center text-3xl text-indigo-800 font-extrabold tracking-tight  lg:text-4xl mb-6">
+            Join The Netwok
           </h2>
           <Form {...form}>
             <form
@@ -127,7 +124,11 @@ function RegisterForm() {
 
 export default function Register() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-screen">
+        Loading...
+      </div>
+    }>
       <RegisterForm />
     </Suspense>
   );
