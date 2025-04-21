@@ -1,36 +1,37 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import { MessageInterface } from '@/interfaces/Messsage';
-import { useSocket } from '@/context/SocketContext';
-import { useChat } from '@/context/ChatContext';
-import axiosInstance from '@/lib/axios';
-import getCookie from '@/lib/getCookie';
-import axios from 'axios';
+import { Send } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { MessageInterface } from "@/interfaces/Messsage";
+import { useSocket } from "@/context/SocketContext";
+import { useChat } from "@/context/ChatContext";
+import axiosInstance from "@/lib/axios";
+import getCookie from "@/lib/getCookie";
+import axios from "axios";
 
 export default function ChatLayout() {
   const [messages, setMessages] = useState<MessageInterface[]>([]);
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState("");
   const { username } = useAuth();
   const { activeChat } = useChat();
   const { socket, setSocket } = useSocket();
-  const socketRef = useRef<WebSocket | null>(null); // Store WebSocket instance
+  const socketRef = useRef<WebSocket | null>(null);
 
   const chatId = useCallback(async () => {
     try {
-      const restaurantId = localStorage.getItem('restaurantId');
-      const response = await axiosInstance.post('/private-chatdb/', {
+      const restaurantId = localStorage.getItem("restaurantId");
+      const response = await axiosInstance.post("/private-chatdb/", {
         user1: username,
         user2: activeChat,
-        restaurant_id: restaurantId
+        restaurant_id: restaurantId,
       });
       return response.data.chat_id;
     } catch (error) {
-      console.error("Error fetching chat id:", error);
+      console.error("Error fetching chat ID:", error);
+      return null;
     }
   }, [username, activeChat]);
 
@@ -38,37 +39,46 @@ export default function ChatLayout() {
     try {
       const chatIdValue = await chatId();
       if (chatIdValue) {
-        const response = await axiosInstance.get(`/private-chat/?chat_id=${chatIdValue}`);
+        const response = await axiosInstance.get(
+          `/private-chat/?chat_id=${chatIdValue}`
+        );
         setMessages(response.data);
       }
-    } catch (error: unknown) {
+    } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         console.log("No chat history found");
+      } else {
+        console.error("Error fetching chat history:", error);
       }
-      else {
-        console.error("Error fetching chat id:", error);
-      }
-
     }
   }, [chatId]);
 
   const handleSocketConnection = useCallback(async () => {
     try {
-      const token = await getCookie('accessToken');
+      const token = await getCookie("accessToken");
       const chatIdValue = await chatId();
       if (chatIdValue && token) {
-        const ws = new WebSocket(`wss://netwok.app/ws/private/${chatIdValue}/${token}/`);
+        const ws = new WebSocket(
+          `wss://api.netwok.app/ws/private/${chatIdValue}/${token}/`
+        );
         socketRef.current = ws;
         setSocket(ws);
+
         ws.onopen = () => {
-          console.log('WebSocket connected');
+          console.log("WebSocket connected");
         };
+
         ws.onmessage = (event) => {
           const message = JSON.parse(event.data);
           setMessages((prevMessages) => [...prevMessages, message]);
         };
+
         ws.onclose = () => {
-          console.log('WebSocket disconnected');
+          console.log("WebSocket disconnected");
+        };
+
+        ws.onerror = (error) => {
+          console.error("WebSocket error:", error);
         };
       }
     } catch (error) {
@@ -85,24 +95,29 @@ export default function ChatLayout() {
     return () => {
       if (socketRef.current) {
         socketRef.current.close();
+        console.log("WebSocket closed");
       }
     };
   }, [activeChat, handleChatHistory, handleSocketConnection]);
 
   const handleSendMessage = useCallback(() => {
-    console.log('Sending message:', inputText);
-    if (inputText.trim() !== '') {
+    if (inputText.trim() !== "") {
       if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ message: inputText }));
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { id: Date.now(), sender_username: username, text: inputText },
+        ]);
       }
-      setInputText('');
+      setInputText("");
     }
-  }, [inputText, socket]);
+  }, [inputText, socket, username]);
 
   return (
     <div className="flex flex-col flex-1 bg-gradient-to-br from-violet-100 to-fuchsia-100 rounded-2xl shadow-md transition-all duration-300 p-4 space-y-4">
+      {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm p-3 text-center font-semibold text-fuchsia-800 border-b border-fuchsia-200">
-        Chat with {activeChat}
+        Chat with {activeChat || "Unknown"}
       </div>
 
       {/* Message Display Section */}
@@ -114,15 +129,22 @@ export default function ChatLayout() {
             messages.map((msg, index) => (
               <div
                 key={index}
-                className={`mb-4 flex ${msg.sender_username === username ? 'justify-end' : 'justify-start'} animate-fade-in-up`}
+                className={`mb-4 flex ${
+                  msg.sender_username === username
+                    ? "justify-end"
+                    : "justify-start"
+                } animate-fade-in-up`}
               >
                 <div
-                  className={`max-w-[80%] p-4 rounded-2xl shadow-lg transition-all duration-300 ${msg.sender_username === username
-                    ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white'
-                    : 'bg-white text-fuchsia-800'
-                    } hover:shadow-xl`}
+                  className={`max-w-[80%] p-4 rounded-2xl shadow-lg transition-all duration-300 ${
+                    msg.sender_username === username
+                      ? "bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white"
+                      : "bg-white text-fuchsia-800"
+                  } hover:shadow-xl`}
                 >
-                  <p className="font-semibold">{msg.sender_username === username ? 'You' : msg.sender_username}</p>
+                  <p className="font-semibold">
+                    {msg.sender_username === username ? "You" : msg.sender_username}
+                  </p>
                   <p className="text-sm">{msg.text}</p>
                 </div>
               </div>
@@ -138,7 +160,7 @@ export default function ChatLayout() {
             placeholder="Type your message..."
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
             className="flex-1 border-fuchsia-300 focus:border-fuchsia-500 focus:ring-fuchsia-500 rounded-full transition-all duration-300"
           />
           <Button

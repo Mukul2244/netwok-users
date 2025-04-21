@@ -34,7 +34,7 @@ export default function ChatSection() {
       const response = await axiosInstance.get(`/group-chat/?restaurant=${restaurantId}`)
       setMessages(response.data)
       const token = await getCookie('accessToken')
-      const ws = new WebSocket(`wss://netwok.app/ws/group/${restaurantId}/${qrCodeNumber}/${token}/`);
+      const ws = new WebSocket(`wss://api.netwok.app/ws/group/${restaurantId}/${qrCodeNumber}/${token}/`);
       socketRef.current = ws
       setSocket(ws)
       ws.onopen = () => {
