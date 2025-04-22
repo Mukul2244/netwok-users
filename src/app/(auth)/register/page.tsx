@@ -146,7 +146,7 @@ function RegisterForm() {
         accessToken: response.data.token,
       });
       setUsername(response.data.username);
-      if (response.data.otp_required) {
+      if (response.data.restaurant.otp_required) {
         toast(
           "You have successfully registered but your account is not verified yet"
         );
