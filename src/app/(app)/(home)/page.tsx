@@ -10,7 +10,7 @@ export default function Home() {
 
   const getData = async () => {
     const response =await axiosInstance.get("/customers/")
-    setRestaurantName(response.data.visited_restaurants[0].name)
+    setRestaurantName(response.data.current_restaurant.name)
   }
 
   useEffect(() => {

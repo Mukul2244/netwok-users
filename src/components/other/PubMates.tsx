@@ -17,7 +17,7 @@ export default function PubMates() {
 
   const fetchUsers = useCallback(async () => {
     const response = await axiosInstance.get('/customers/');
-    const data = response.data.visited_restaurants[0];
+    const data = response.data.current_restaurant;
     const ids = data.customers;
     const usernames = data.customers_usernames;
     const mergedCustomers = ids.map((id: number, index: number) => ({

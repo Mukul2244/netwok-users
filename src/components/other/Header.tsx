@@ -28,7 +28,7 @@ export default function Header() {
   const fetchData = useCallback(async () => {
     const response = await axiosInstance.get("/customers/");
     setExpiryDate(response.data.customer.token_expiry_on);
-    setRestaurantName(response.data.visited_restaurants[0].name);
+    setRestaurantName(response.data.current_restaurant.name);
   }, []);
 
   useEffect(() => {
