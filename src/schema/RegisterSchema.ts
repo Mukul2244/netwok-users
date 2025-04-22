@@ -11,16 +11,19 @@ export const RegisterSchema = z.object({
     .max(32, { message: "Email is too long" }),
   name: z
     .string()
-    .optional(),
+    .min(3, { message: "Name must be at least 3 characters long" })
+    .max(32, { message: "Name is too long" }),
   description: z
     .string()
-    .optional(),
+    .min(3, { message: "Description must be at least 3 characters long" })
+    .max(32, { message: "Description is too long" }),
   sex: z
   .enum(["M", "F", "O"], {
     required_error: "Please select your gender",
   }),
   interests: z
     .array(z.string())
-    .optional(),
+    .min(1, { message: "Please select at least one interest" })
+    .max(5, { message: "You can select up to 5 interests" }),
 
 })

@@ -40,14 +40,14 @@ export default function Header() {
 
   return (
     <header className="bg-white/80 backdrop-blur-sm shadow-md p-4 flex items-center justify-between sticky top-0 z-10 transition-all duration-300 ease-in-out">
-      <h1 className="text-2xl font-bold text-fuchsia-800 flex items-center">
+      <h1 className="text-lg font-bold text-fuchsia-800 flex items-center">
         <Beer className="mr-2 text-amber-500 animate-bounce" />
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-600 to-violet-600">
-          {`${restaurantName} Pub`}
+          {`${restaurantName}`}
         </span>
       </h1>
       <div className="flex items-center space-x-4">
-        <div className="text-sm font-medium text-fuchsia-700">
+        <div className=" hidden md:block text-sm font-medium text-fuchsia-700">
           Welcome, {memoizedUsername}!
         </div>
         <div className="text-sm font-medium text-fuchsia-700 bg-fuchsia-100 px-3 py-1 rounded-full">

@@ -13,6 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -23,7 +24,6 @@ import { RegisterSchema } from "@/schema/RegisterSchema";
 import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/lib/axios";
 import Image from "next/image";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const items = [
   {
